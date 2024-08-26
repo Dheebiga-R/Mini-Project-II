@@ -11,7 +11,7 @@ import app.spring.patient_management_system.DTO.UserLoginDTO;
 import app.spring.patient_management_system.DTO.UserRegisteredDTO;
 import app.spring.patient_management_system.service.UserService;
 import app.spring.patient_management_system.service.UserServiceImpl;
-
+//login controller
 @Controller
 @RequestMapping("/login")
 public class LoginController {

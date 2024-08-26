@@ -11,17 +11,13 @@ import app.spring.patient_management_system.DTO.UserRegisteredDTO;
 import app.spring.patient_management_system.service.UserService;
 import app.spring.patient_management_system.service.UserServiceImpl;
 
+//registration controller
 @Controller
 @RequestMapping("/registration")
 public class RegistrationController {
 
 	    @Autowired
 	    private UserServiceImpl userService;
-
-	    public RegistrationController(UserServiceImpl userService) {
-	        super();
-	        this.userService = userService;
-	    }
 
 	    @ModelAttribute("user")
 	    public UserRegisteredDTO userRegistrationDto() {

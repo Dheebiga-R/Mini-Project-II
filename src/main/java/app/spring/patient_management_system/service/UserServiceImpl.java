@@ -1,6 +1,9 @@
 package app.spring.patient_management_system.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +21,7 @@ import app.spring.patient_management_system.entity.Role;
 import app.spring.patient_management_system.entity.User;
 import app.spring.patient_management_system.repository.RoleRepository;
 import app.spring.patient_management_system.repository.UserRepository;
-
+//for login and registration
 @Service
 public class UserServiceImpl implements UserService{
 
@@ -30,14 +33,6 @@ public class UserServiceImpl implements UserService{
 	
 	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	
-	public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
-			BCryptPasswordEncoder passwordEncoder) {
-		super();
-		this.userRepository = userRepository;
-		this.roleRepository = roleRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
-	
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
 		User user = userRepository.findByEmail(email);
@@ -47,13 +42,13 @@ public class UserServiceImpl implements UserService{
 		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
 	}
 
-	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
+	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(List<Role> list) {
 		
-		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getRole())).collect(Collectors.toList());
+		return list.stream().map(role -> new SimpleGrantedAuthority(role.getRole())).collect(Collectors.toList());
 	}
 	
 	public User save(UserRegisteredDTO userRegisteredDTO) {
-		Role role = new Role();
+	     Role role = new Role();
 		if(userRegisteredDTO.getRole().equals("USER"))
 		  role = roleRepository.findByRole("USER");
 		else if(userRegisteredDTO.getRole().equals("ADMIN"))
@@ -62,8 +57,7 @@ public class UserServiceImpl implements UserService{
 		user.setEmail(userRegisteredDTO.getEmail_id());
 		user.setName(userRegisteredDTO.getName());
 		user.setPassword(passwordEncoder.encode(userRegisteredDTO.getPassword()));
-        user.setRoles((Set<Role>) role);
-		
+        user.setRoles(Arrays.asList(role));		
 		return userRepository.save(user);
 	}
 }

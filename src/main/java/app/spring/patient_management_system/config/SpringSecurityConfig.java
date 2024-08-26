@@ -13,20 +13,16 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import app.spring.patient_management_system.service.UserServiceImpl;
 
-
+//Handling authorization and authentication using role based authentication
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig{
 
 	@Autowired
 	private UserServiceImpl userServiceImpl;
-	public SpringSecurityConfig(UserServiceImpl userServiceImpl) {
-		super();
-		this.userServiceImpl = userServiceImpl;
-	}
 	
 	@Autowired
-	AuthenticationSuccessHandler successHandler;
+	private AuthenticationSuccessHandler successHandler;
 	
 	@Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -34,28 +30,25 @@ public class SpringSecurityConfig{
     }
 	
 	@Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(userServiceImpl);
-        auth.setPasswordEncoder(passwordEncoder());
-        return auth;
-    }
-	
-    @Autowired
-    public void configure(AuthenticationManagerBuilder auth) throws 
-                                                Exception {
-        auth.authenticationProvider(authenticationProvider());
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+                .authorizeHttpRequests((authorize) ->
+                        authorize.requestMatchers("/registration/**").permitAll()
+                        .requestMatchers("/doctorScreen").hasAuthority("ADMIN")
+                        .requestMatchers("/dashboard").hasAuthority("USER")
+                        .anyRequest().authenticated()
+                ).formLogin(
+                        form -> form
+                                .loginPage("/login")
+                                .successHandler(successHandler)
+                                .permitAll()
+                ).logout(
+                        logout -> logout
+                        .invalidateHttpSession(true).clearAuthentication(true)
+                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                                .permitAll()
+                );
+        return http.build();
     }
 
-    @Bean
-    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().requestMatchers("/registration").permitAll().anyRequest()
-                .authenticated().and().formLogin().loginPage("/login").successHandler(successHandler).
-                                              permitAll().and().logout()
-                .invalidateHttpSession(true).clearAuthentication(true)
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")).
-                                       logoutSuccessUrl("/login?logout")
-                .permitAll();
-         return http.build();
-    }
 }

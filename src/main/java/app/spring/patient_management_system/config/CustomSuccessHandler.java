@@ -13,6 +13,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+//Authentication
 @Component
 public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -28,12 +29,9 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 				redirectUrl = "/dashboard";
 				break;
 			} else if (grantedAuthority.getAuthority().equals("ADMIN")) {
-				redirectUrl = "/adminScreen";
+				redirectUrl = "/doctorScreen";
 				break;
 			}
-		}
-		if (redirectUrl == null) {
-			throw new IllegalStateException();
 		}
 		new DefaultRedirectStrategy().sendRedirect(request, response, redirectUrl);
 	}
